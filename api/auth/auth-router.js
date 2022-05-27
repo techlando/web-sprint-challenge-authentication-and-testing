@@ -44,7 +44,7 @@ router.post('/register', validateUsername, userNameExists, (req, res, next) => {
 router.post('/login', validateUsername,  userNamedoesntExists, (req, res, next) => {
   if(bcrypt.compareSync(req.body.password, req.user.password)){
     const token = buildToken(req.user)
-    res.json({
+    res.status(200).json({
       message: `welcome, ${req.user.username}`,
       token,
     })

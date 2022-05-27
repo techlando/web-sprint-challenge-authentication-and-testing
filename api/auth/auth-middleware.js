@@ -23,8 +23,8 @@ const userNamedoesntExists = async (req, res, next) => {
     } 
 
 const userNameExists = async (req, res, next) => {
+  const [user] = await User.findBy({username: req.body.username})
   try {
-    const [user] = await User.findBy({username: req.body.username})
     if(user) {
       next({ status: 422, message: "username taken"})
     } else {
