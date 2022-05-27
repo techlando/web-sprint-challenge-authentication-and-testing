@@ -51,9 +51,6 @@ router.post('/login', validateUsername,  userNamedoesntExists, (req, res, next) 
   } else {
     next({ status: 401, message: 'invalid credentials'})
   }
-  
-   
-  
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
