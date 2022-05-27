@@ -1,9 +1,9 @@
 const router = require('express').Router();
 const { JWT_SECRET } = require('./secrets')
-const User = require('..//middleware/User-model')
+const User = require('../middleware/User-model')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const { validateUsername, userNameExists } = require('./auth-middleware')
+const { validateUsername, userNameExists,  userNamedoesntExists } = require('./auth-middleware')
 
 router.post('/register', validateUsername, userNameExists, (req, res, next) => {
   const { username, password } = req.body
@@ -41,8 +41,19 @@ router.post('/register', validateUsername, userNameExists, (req, res, next) => {
   */
 });
 
-router.post('/login', (req, res) => {
-  res.end('implement login, please!');
+router.post('/login', validateUsername,  userNamedoesntExists, (req, res, next) => {
+  if(bcrypt.compareSync(req.body.password, req.user.password)){
+    const token = buildToken(req.user)
+    res.json({
+      message: `welcome, ${req.user.username}`,
+      token,
+    })
+  } else {
+    next({ status: 401, message: 'invalid credentials'})
+  }
+  
+   
+  
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
@@ -67,5 +78,16 @@ router.post('/login', (req, res) => {
       the response body should include a string exactly as follows: "invalid credentials".
   */
 });
+
+function buildToken(user) {
+  const payload = {
+    subject: user.id,
+    username: user.username
+  }
+  const options = {
+    expiresIn: '1d',
+  }
+  return jwt.sign(payload, JWT_SECRET, options)
+}
 
 module.exports = router;
